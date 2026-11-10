@@ -1,0 +1,879 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Jiskra Docházka</title>
+<meta name="description" content="Docházka a kasa TJ Jiskra Ústí nad Orlicí">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Jiskra">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,700;1,800&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Tmavá "zápasová" aplikace: černé pozadí, pruhovaná hlavička s logem, tréninky střídavě bílé/černé, zápasy červené. */
+:root{
+  --bg:#0a0a0a; --surface:#151515; --surface-2:#1f1f1f; --ink:#f4f4f4; --muted:#8e8e8e; --line:#2a2a2a;
+  --strong:#f4f4f4; --strong-ink:#0a0a0a; --mid:#3d3d3d; --mid-ink:#f4f4f4; --soft:#2c2c2c;
+  --red:#d4111e;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.disp{font-family:var(--f-display);font-style:italic;font-weight:800;text-transform:uppercase;letter-spacing:.01em}
+
+header.band{position:relative;overflow:hidden;border-bottom:1px solid var(--line);
+  background:repeating-linear-gradient(-58deg,rgba(255,255,255,.035) 0 14px,transparent 14px 30px),linear-gradient(180deg,#000 0%,#0a0a0a 100%)}
+header.band::after{content:"";position:absolute;right:-40px;top:-30%;width:46%;height:160%;background:rgba(255,255,255,.05);transform:skewX(-22deg);pointer-events:none}
+header.band .wrap{position:relative;z-index:1;padding-top:calc(22px + env(safe-area-inset-top,0px));padding-bottom:22px}
+.brand{display:flex;align-items:center;gap:16px}
+.crest-plate{flex:none;background:#fff;border-radius:6px;padding:7px 9px;box-shadow:0 0 0 1px rgba(255,255,255,.15),0 10px 30px rgba(0,0,0,.6)}
+.crest{display:block;height:92px;width:auto;max-width:100%}
+.brand .kicker{font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin:0}
+.brand h1{margin:2px 0 0;font-size:clamp(40px,11vw,58px);line-height:.86}
+.brand .sub{margin:4px 0 0;font-family:var(--f-display);font-weight:700;font-size:17px;letter-spacing:.08em;text-transform:uppercase}
+
+.install{background:var(--strong);color:var(--strong-ink)}
+.install .wrap{display:flex;align-items:center;gap:10px;padding-block:10px;font-size:13.5px}
+.install .wrap > span{flex:1;min-width:0}
+.install button{border:0;border-radius:4px;padding:8px 12px;font-weight:700;background:var(--strong-ink);color:var(--strong)}
+.install button.x{background:transparent;color:var(--strong-ink);padding:8px;font-size:18px;line-height:1}
+
+nav.tabs{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+nav.tabs .wrap{display:flex;gap:10px}
+nav.tabs button{flex:1 1 auto;background:none;border:0;padding:14px 2px 11px;font-family:var(--f-display);font-style:italic;font-weight:800;font-size:17px;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);border-bottom:4px solid transparent}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+
+main .wrap{padding-top:20px;padding-bottom:calc(56px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:16px}
+section > .stack{display:flex;flex-direction:column;gap:12px}
+.notice{background:var(--surface-2);border-left:3px solid var(--ink);border-radius:4px;padding:10px 12px;font-size:13.5px}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.sec-h h2{margin:0;font-size:30px;line-height:1}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:transparent;border-radius:4px;padding:6px 14px;font-family:var(--f-display);font-weight:700;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--strong);color:var(--strong-ink);border-color:var(--strong)}
+
+/* Akce */
+.events{display:flex;flex-direction:column;gap:10px}
+.ev{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px;overflow:hidden;position:relative}
+.ev.light{--bg:#ececec;--surface:#f4f4f4;--surface-2:#e2e2e2;--ink:#0a0a0a;--muted:#5d5d5d;--line:#d0d0d0;--strong:#0a0a0a;--strong-ink:#f4f4f4;--mid:#9b9b9b;--mid-ink:#ffffff;--soft:#cdcdcd;border:0;color-scheme:light}
+.ev.light::before{content:"";position:absolute;right:0;top:0;width:90px;height:100%;background:repeating-linear-gradient(-58deg,rgba(0,0,0,.06) 0 8px,transparent 8px 16px);pointer-events:none}
+.ev.match{--bg:#9e0a13;--surface:#d4111e;--surface-2:#b30d18;--ink:#ffffff;--muted:#ffd2d5;--line:#e8505a;--strong:#ffffff;--strong-ink:#c20f1b;--mid:#6e060d;--mid-ink:#ffffff;--soft:#9e0a13;border:0}
+.ev.match::before{content:"";position:absolute;right:0;top:0;width:110px;height:100%;background:repeating-linear-gradient(-58deg,rgba(255,255,255,.12) 0 8px,transparent 8px 16px);pointer-events:none}
+.ev-head{display:grid;grid-template-columns:62px 1fr;gap:14px;padding:14px;position:relative}
+.date{text-align:center;padding:4px 2px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--line)}
+.ev.match .date{background:var(--strong);color:var(--strong-ink);border-radius:4px;border:0}
+.date .dw{font-size:11px;text-transform:uppercase;letter-spacing:.14em;font-weight:700}
+.date .dd{font-family:var(--f-display);font-style:italic;font-weight:800;font-size:34px;line-height:.95}
+.date .dm{font-size:11px;text-transform:uppercase;letter-spacing:.1em}
+.ev.feature .ev-head{grid-template-columns:84px 1fr;padding:18px 16px}
+.ev.feature .date .dd{font-size:58px}
+.ev-body{min-width:0;display:flex;flex-direction:column;gap:4px;justify-content:center}
+.ev-label{font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.ev-title{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-family:var(--f-display);font-style:italic;font-weight:800;font-size:24px;line-height:1;text-transform:uppercase}
+.ev.feature .ev-title{font-size:34px}
+.tag{font-family:var(--f-body);font-style:normal;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:3px 7px;border-radius:3px;border:1px solid var(--line);color:var(--muted)}
+.ev-meta{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ev-meta b{color:var(--ink);font-weight:700;font-size:15px}
+.tally{display:flex;align-items:center;gap:12px;padding:10px 14px;border-top:1px solid var(--line);font-size:13px;font-variant-numeric:tabular-nums;position:relative}
+.tally b{font-weight:700}
+.tally .bar{flex:1;height:5px;background:var(--soft);display:flex;overflow:hidden;min-width:40px;transform:skewX(-20deg)}
+.tally .bar i{display:block;height:100%}
+.open-btn{border:1.5px solid var(--ink);background:transparent;border-radius:4px;padding:7px 12px;font-family:var(--f-display);font-weight:700;font-size:15px;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
+.open-btn[aria-expanded="true"]{background:var(--strong);color:var(--strong-ink);border-color:var(--strong)}
+
+.roster{border-top:1px solid var(--line);background:var(--bg);padding:4px 14px 12px;position:relative}
+.roster h4{margin:12px 0 2px;font-family:var(--f-display);font-style:italic;font-weight:800;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.pl{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.pl:last-child{border-bottom:0}
+.pl .pname{flex:1;min-width:0;font-size:14.5px;font-weight:500}
+.pl .pos-l{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.pl .state{font-size:11px;color:var(--muted);display:block;font-weight:400}
+.rs{display:flex;gap:6px;flex:none}
+.rs button{border:1.5px solid var(--line);background:transparent;border-radius:4px;padding:7px 10px;font-weight:700;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;min-width:66px;color:var(--muted)}
+.rs .yes[aria-pressed="true"]{background:var(--strong);color:var(--strong-ink);border-color:var(--strong)}
+.rs .no[aria-pressed="true"]{background:var(--mid);color:var(--mid-ink);border-color:var(--mid)}
+.linkbtn{background:none;border:0;color:var(--ink);font-weight:600;padding:4px 0;align-self:flex-start;text-decoration:underline;text-underline-offset:3px}
+.num{font-family:var(--f-display);font-style:italic;font-weight:800;font-size:19px;width:36px;height:32px;flex:none;border-radius:3px;background:var(--surface-2);display:inline-flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+
+/* Docházka */
+.table-wrap{background:var(--surface);border:1px solid var(--line);border-radius:6px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:700;text-align:left;padding:11px 10px 9px;border-bottom:1px solid var(--line)}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td .pname{font-weight:600}
+.pos{font-size:12px;color:var(--muted)}
+.pct{display:flex;align-items:center;gap:8px;min-width:120px}
+.pct .track{flex:1;height:7px;background:var(--surface-2);overflow:hidden;transform:skewX(-20deg)}
+.pct .fill{height:100%;background:var(--ink)}
+.pct strong{font-family:var(--f-display);font-style:italic;font-weight:800;font-size:22px;width:50px;text-align:right}
+.split{font-size:12.5px;color:var(--muted);white-space:nowrap}
+
+/* Karty a formuláře */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.card h3{margin:0;font-family:var(--f-display);font-style:italic;font-weight:800;font-size:22px;letter-spacing:.02em;text-transform:uppercase}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field > span{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.field input,.field select,.inp{border:1px solid var(--line);background:var(--bg);border-radius:4px;padding:10px;width:100%;min-width:0}
+.btn{border:0;border-radius:4px;padding:11px 16px;font-family:var(--f-display);font-weight:700;font-size:16px;letter-spacing:.06em;text-transform:uppercase;background:var(--strong);color:var(--strong-ink)}
+.btn.ghost{background:var(--surface-2);color:var(--ink)}
+.btn:disabled{opacity:.5}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.clist{display:flex;flex-direction:column}
+.citem{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;padding:10px 0;border-top:1px solid var(--line)}
+.citem:first-child{border-top:0}
+.citem .grow{flex:1;min-width:150px}
+.iconbtn{border:1px solid var(--line);background:transparent;border-radius:4px;padding:6px 10px;font-size:13px;font-weight:600}
+.iconbtn.warn{border-color:var(--ink);background:var(--strong);color:var(--strong-ink)}
+.empty{padding:24px 14px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:6px}
+.pinrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pinrow .inp{width:140px;font-size:20px;letter-spacing:.3em;text-align:center}
+
+/* Trenér */
+.bigbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bigbtn{border:0;border-radius:6px;padding:22px 10px;background:var(--strong);color:var(--strong-ink);font-family:var(--f-display);font-style:italic;font-weight:800;font-size:26px;text-transform:uppercase;letter-spacing:.02em;display:flex;align-items:center;justify-content:center;gap:8px}
+.bigbtn span{font-size:34px;line-height:0}
+.bigbtn.match{background:var(--red);color:#fff}
+.bigbtn[aria-pressed="true"]{outline:3px solid var(--ink);outline-offset:3px}
+.seg{display:flex;border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.seg button{flex:1;border:0;background:transparent;padding:11px 8px;font-weight:700;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--strong);color:var(--strong-ink)}
+.field.check{flex-direction:row;align-items:center;gap:8px;grid-column:1/-1}
+.field.check input{width:auto}
+.field.check span{text-transform:none;letter-spacing:0;font-size:13.5px;color:var(--ink);font-weight:500}
+details.fold summary{cursor:pointer;list-style:none;font-family:var(--f-display);font-style:italic;font-weight:800;font-size:20px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
+details.fold summary::-webkit-details-marker{display:none}
+details.fold summary::after{content:"+";font-size:26px;font-style:normal}
+details.fold[open] summary::after{content:"–"}
+details.fold:not([open]){gap:0}
+.cev{display:flex;align-items:center;gap:12px;width:100%;background:none;border:0;border-top:1px solid var(--line);padding:11px 2px;text-align:left}
+.clist > .cev:first-child{border-top:0}
+.cev .cd{width:60px;flex:none;text-align:center;font-family:var(--f-display);font-style:italic;font-weight:800;font-size:22px;line-height:1}
+.cev .cd small{display:block;font-family:var(--f-body);font-style:normal;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.cev .ci{flex:1;min-width:0}
+.cev .ci b{display:block}
+.cev .go{color:var(--muted);font-size:13px;font-weight:600}
+.cev.is-match .cd{color:#ff4b55}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);margin-right:6px;vertical-align:middle}
+.edit{border-top:1px solid var(--line);padding:12px 0 14px;display:flex;flex-direction:column;gap:10px}
+
+/* Kasa */
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px}
+.kpi.inv{background:var(--strong);color:var(--strong-ink);border-color:var(--strong)}
+.kpi span{display:block;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;opacity:.7}
+.kpi strong{display:block;font-family:var(--f-display);font-style:italic;font-weight:800;font-size:38px;line-height:1;margin-top:4px;font-variant-numeric:tabular-nums}
+.kp{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;border-top:1px solid var(--line);padding:10px 0;text-align:left}
+.kp:first-child{border-top:0}
+.kp .pname{flex:1;min-width:0;font-weight:500}
+.kp .debt{font-family:var(--f-display);font-style:italic;font-weight:800;font-size:20px;font-variant-numeric:tabular-nums}
+.kp .debt.zero{color:var(--muted);font-size:16px}
+.kdetail{border-top:1px solid var(--line);padding:6px 0 14px;display:flex;flex-direction:column;gap:8px}
+.fine{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:8px 10px;background:var(--bg);border-radius:4px}
+.fine .fl{flex:1;min-width:140px}
+.fine .fa{font-weight:700;font-variant-numeric:tabular-nums}
+.fine.paid .fl,.fine.paid .fa{color:var(--muted);text-decoration:line-through}
+.pill{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:3px}
+.pill.unpaid{background:var(--red);color:#fff}
+.pill.ok{border:1px solid var(--line);color:var(--muted)}
+.quick{display:flex;flex-wrap:wrap;gap:6px}
+.quick button{border:1px solid var(--line);background:var(--surface-2);border-radius:4px;padding:8px 10px;font-size:13px;font-weight:600}
+.price{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+.price:first-child{border-top:0}
+.price .pn{flex:1;min-width:0}
+.price .pa{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.price input{border:1px solid var(--line);background:var(--bg);border-radius:4px;padding:8px}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--strong);color:var(--strong-ink);padding:11px 18px;border-radius:4px;font-weight:600;font-size:14px;max-width:calc(100% - 32px);z-index:20;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+@media (max-width:380px){ nav.tabs button{font-size:15px} .rs button{min-width:56px;padding:7px 8px} }
+</style>
+</head>
+<body>
+
+<header class="band">
+  <div class="wrap">
+    <div class="brand">
+      <div class="crest-plate"><img class="crest" src="logo.png" alt="Logo TJ Jiskra Ústí nad Orlicí" width="298" height="498"></div>
+      <div>
+        <p class="kicker">TJ Jiskra Ústí nad Orlicí</p>
+        <h1 class="disp">Jiskra</h1>
+        <p class="sub">Docházka · A + B tým</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="install" id="install" hidden>
+  <div class="wrap">
+    <span id="install-text">Přidej si aplikaci na plochu mobilu.</span>
+    <button type="button" id="install-btn" hidden>Přidat</button>
+    <button type="button" class="x" id="install-x" aria-label="Zavřít">×</button>
+  </div>
+</div>
+
+<nav class="tabs" aria-label="Sekce">
+  <div class="wrap" role="tablist">
+    <button role="tab" data-tab="program" aria-selected="true">Program</button>
+    <button role="tab" data-tab="stats" aria-selected="false">Docházka</button>
+    <button role="tab" data-tab="kasa" aria-selected="false">Kasa</button>
+    <button role="tab" data-tab="coach" aria-selected="false">Trenér</button>
+  </div>
+</nav>
+
+<main>
+  <div class="wrap">
+    <div id="status" class="notice" hidden></div>
+
+    <!-- PROGRAM -->
+    <section id="tab-program">
+      <div class="stack">
+        <div class="sec-h"><h2 class="disp">Program</h2></div>
+        <div class="chips" id="prog-filter">
+          <button class="chip" data-f="all" aria-pressed="true">Vše</button>
+          <button class="chip" data-f="A" aria-pressed="false">A tým</button>
+          <button class="chip" data-f="B" aria-pressed="false">B tým</button>
+        </div>
+        <div class="events" id="upcoming"><div class="empty">Načítám program…</div></div>
+        <button class="linkbtn" id="toggle-past" hidden></button>
+        <div class="events" id="past" hidden></div>
+      </div>
+    </section>
+
+    <!-- DOCHÁZKA -->
+    <section id="tab-stats" hidden>
+      <div class="stack">
+        <div class="sec-h"><h2 class="disp">Docházka</h2></div>
+        <div class="chips" id="stats-filter">
+          <button class="chip" data-t="A" aria-pressed="true">A tým</button>
+          <button class="chip" data-t="B" aria-pressed="false">B tým</button>
+        </div>
+        <p class="muted small" style="margin:0">Procenta počítají proběhlé tréninky a zápasy daného týmu, kde hráč dal „Budu“. T = tréninky, Z = zápasy.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>#</th><th>Hráč</th><th>Účast</th><th>T / Z</th></tr></thead>
+          <tbody id="stats-body"><tr><td colspan="4" class="muted">Načítám…</td></tr></tbody>
+        </table></div>
+      </div>
+    </section>
+
+    <!-- KASA -->
+    <section id="tab-kasa" hidden>
+      <div class="stack">
+        <div class="sec-h"><h2 class="disp">Kasa</h2></div>
+        <div class="kpis">
+          <div class="kpi inv"><span>V kase</span><strong id="k-paid">0 Kč</strong></div>
+          <div class="kpi"><span>Nezaplaceno</span><strong id="k-unpaid">0 Kč</strong></div>
+        </div>
+        <div class="chips" id="kasa-filter">
+          <button class="chip" data-t="A" aria-pressed="true">A tým</button>
+          <button class="chip" data-t="B" aria-pressed="false">B tým</button>
+        </div>
+        <div class="card"><div class="clist" id="kasa-players"></div></div>
+
+        <div class="card">
+          <h3>Ceník pokut</h3>
+          <div class="clist" id="cenik"></div>
+          <form id="ft-form" class="grid" hidden>
+            <label class="field"><span>Za co</span><input id="ft-name" type="text" placeholder="např. Pozdní příchod" required></label>
+            <label class="field"><span>Kolik Kč</span><input id="ft-amount" type="number" min="0" step="10" inputmode="numeric" required></label>
+            <div class="field" style="justify-content:flex-end"><button class="btn" type="submit">Přidat do ceníku</button></div>
+          </form>
+        </div>
+
+        <div class="card" id="kasa-lock">
+          <h3>Pokladník</h3>
+          <p class="muted small" style="margin:0">Zadej PIN pokladníka, abys mohl zapisovat pokuty.</p>
+          <form id="kasa-pin-form" class="pinrow">
+            <input id="kasa-pin" class="inp" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="PIN">
+            <button class="btn" type="submit">Odemknout</button>
+          </form>
+        </div>
+        <div class="card" id="kasa-admin" hidden>
+          <h3>Pokladník</h3>
+          <p class="muted small" style="margin:0">Odemčeno. Klikni na hráče a přidej mu pokutu nebo označ zaplacení.</p>
+          <details class="fold" style="display:flex;flex-direction:column;gap:10px">
+            <summary style="font-size:16px">Změnit PIN kasy</summary>
+            <form id="kasa-newpin-form" class="pinrow">
+              <input id="kasa-newpin" class="inp" type="text" inputmode="numeric" maxlength="8" placeholder="Nový PIN">
+              <button class="btn ghost" type="submit">Uložit PIN</button>
+            </form>
+          </details>
+          <button class="btn ghost" type="button" id="kasa-lock-btn" style="align-self:flex-start">Zamknout kasu</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRENÉR -->
+    <section id="tab-coach" hidden>
+      <div id="coach-lock" class="card">
+        <h3>Vstup pro trenéra</h3>
+        <p class="muted small" style="margin:0">Zadej PIN, abys mohl přidávat tréninky a zápasy.</p>
+        <form id="pin-form" class="pinrow">
+          <input id="pin-input" class="inp" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="PIN">
+          <button class="btn" type="submit">Odemknout</button>
+        </form>
+      </div>
+
+      <div id="coach-panel" hidden style="display:flex;flex-direction:column;gap:16px">
+        <div class="bigbtns">
+          <button class="bigbtn" type="button" data-new="trenink"><span>+</span> Trénink</button>
+          <button class="bigbtn match" type="button" data-new="zapas"><span>+</span> Zápas</button>
+        </div>
+
+        <form id="new-form" class="card" hidden>
+          <h3 id="new-title">Nový trénink</h3>
+          <div class="field" id="nf-team-wrap"><span>Kdo hraje</span>
+            <div class="seg" id="nf-team"><button type="button" data-v="A" aria-pressed="true">A tým</button><button type="button" data-v="B" aria-pressed="false">B tým</button></div>
+          </div>
+          <div class="grid">
+            <label class="field"><span>Datum</span><input id="nf-date" type="date" required></label>
+            <label class="field"><span id="nf-time-l">Čas</span><input id="nf-time" type="time"></label>
+            <label class="field" id="nf-timeb-wrap"><span>Čas B týmu (jen když je jindy)</span><input id="nf-timeb" type="time"></label>
+            <label class="field" id="nf-opp-wrap"><span>Soupeř</span><input id="nf-opp" type="text" placeholder="např. Choceň"></label>
+          </div>
+          <div class="field" id="nf-place-wrap"><span>Kde</span>
+            <div class="seg" id="nf-place"><button type="button" data-v="Doma" aria-pressed="true">Doma</button><button type="button" data-v="Venku" aria-pressed="false">Venku</button></div>
+          </div>
+          <div class="row"><button class="btn" type="submit">Uložit</button><button class="btn ghost" type="button" id="nf-cancel">Zrušit</button></div>
+        </form>
+
+        <div class="card">
+          <h3>Naplánované akce</h3>
+          <p class="muted small" style="margin:0">Klikni na akci, když chceš změnit čas, soupeře nebo ji smazat.</p>
+          <div class="clist" id="coach-events"></div>
+        </div>
+
+        <details class="card fold">
+          <summary>Naplánovat celý týden najednou</summary>
+          <p class="muted small" style="margin:0">Vytvoří trénink v úterý, středu a pátek pro oba týmy a zápasy v sobotu (A tým) a neděli (B tým). Časy můžeš nechat prázdné.</p>
+          <form id="week-form" class="grid">
+            <label class="field"><span>Týden od pondělí</span><input id="wk-mon" type="date" required></label>
+            <label class="field"><span>Úterý</span><input id="wk-tue" type="time"></label>
+            <label class="field"><span>Středa</span><input id="wk-wed" type="time"></label>
+            <label class="field"><span>Pátek – A tým</span><input id="wk-fri" type="time"></label>
+            <label class="field"><span>Pátek – B tým</span><input id="wk-frib" type="time"></label>
+            <label class="field check"><input id="wk-matches" type="checkbox" checked><span>Přidat i víkendové zápasy</span></label>
+            <div class="field" style="justify-content:flex-end"><button class="btn" type="submit">Naplánovat týden</button></div>
+          </form>
+        </details>
+
+        <details class="card fold">
+          <summary>Soupiska hráčů</summary>
+          <form id="pl-form" class="grid">
+            <label class="field"><span>Jméno a příjmení</span><input id="pl-name" type="text" required></label>
+            <label class="field"><span>Číslo</span><input id="pl-num" type="number" min="0" max="99" inputmode="numeric"></label>
+            <label class="field"><span>Pozice</span><select id="pl-pos"><option value="B">Brankář</option><option value="O">Obránce</option><option value="Z">Záložník</option><option value="U">Útočník</option></select></label>
+            <label class="field"><span>Tým</span><select id="pl-team"><option value="A">A tým</option><option value="B">B tým</option></select></label>
+            <div class="field" style="justify-content:flex-end"><button class="btn" type="submit">Přidat hráče</button></div>
+          </form>
+          <div class="clist" id="coach-players"></div>
+        </details>
+
+        <details class="card fold">
+          <summary>Změnit PIN trenéra</summary>
+          <form id="newpin-form" class="pinrow">
+            <input id="newpin" class="inp" type="text" inputmode="numeric" maxlength="8" placeholder="Nový PIN">
+            <button class="btn ghost" type="submit">Uložit PIN</button>
+          </form>
+        </details>
+
+        <button class="btn ghost" type="button" id="lock-btn" style="align-self:flex-start">Zamknout trenéra</button>
+      </div>
+    </section>
+  </div>
+</main>
+<div id="toast" class="toast" hidden role="status"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
+<script>
+(() => {
+  /* ---------- Nastavení ---------- */
+  const SB_URL = "https://iifkvqmyacfeuiwoshth.supabase.co";
+  const SB_KEY = "sb_publishable_AHUUOhbe6mDWHymH4f3J7w__NWXMowe";
+
+  const POS = {B:"Brankář",O:"Obránce",Z:"Záložník",U:"Útočník"};
+  const POS_ORDER = {B:0,O:1,Z:2,U:3};
+  const DW = ["Ne","Po","Út","St","Čt","Pá","So"];
+  const MON = ["led","úno","bře","dub","kvě","čvn","čvc","srp","zář","říj","lis","pro"];
+
+  const S = {
+    players:new Map(), events:new Map(), att:new Map(), fineTypes:[], fines:[],
+    loaded:false, filter:"all", statsTeam:"A", kasaTeam:"A", showPast:false,
+    open:new Set(), kasaOpen:null, confirm:null, pins:{trener:"",kasa:""}
+  };
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const ls = {get(k){try{return localStorage.getItem(k)}catch{return null}}, set(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch{}}};
+
+  const pad = n => String(n).padStart(2,"0");
+  const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const parse = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y,m-1,d); };
+  const today = () => ymd(new Date());
+  const forTeam = (e,t) => e.teams === "AB" || e.teams === t;
+  const numTxt = p => p.num!=null&&p.num!=="" ? esc(p.num) : "–";
+  const kc = n => (n||0).toLocaleString("cs-CZ") + " Kč";
+
+  let toastT;
+  function toast(msg){ const t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,2400); }
+  function status(msg){ const s=$("status"); if(!msg){s.hidden=true;return;} s.textContent=msg; s.hidden=false; }
+
+  /* ---------- Supabase ---------- */
+  const sb = window.supabase ? window.supabase.createClient(SB_URL, SB_KEY, {auth:{persistSession:false,autoRefreshToken:false}}) : null;
+
+  async function fetchAll(table, cols, order){
+    let out=[], from=0;
+    for(;;){
+      const {data,error} = await sb.from(table).select(cols).order(order).range(from, from+999);
+      if(error) throw error;
+      out = out.concat(data);
+      if(data.length < 1000) return out;
+      from += 1000;
+    }
+  }
+  let loading=null, reloadAgain=false;
+  async function loadAll(){
+    if(!sb){ status("Nepodařilo se načíst aplikaci. Zkontroluj připojení k internetu a obnov stránku."); return; }
+    if(loading){ reloadAgain=true; return loading; }
+    loading = (async()=>{
+      try{
+        const [p,e,a,ft,f] = await Promise.all([
+          fetchAll("players","*","id"), fetchAll("events","*","id"),
+          fetchAll("attendance","event_id,player_id,status","event_id"),
+          fetchAll("fine_types","*","sort"), fetchAll("fines","*","created_at")
+        ]);
+        S.players = new Map(p.map(x=>[x.id,x]));
+        S.events = new Map(e.map(x=>[x.id,x]));
+        S.att = new Map(a.map(x=>[x.event_id+"__"+x.player_id,{s:x.status}]));
+        S.fineTypes = ft.sort((x,y)=>(x.sort-y.sort)||x.name.localeCompare(y.name,"cs"));
+        S.fines = f;
+        S.loaded = true; status("");
+        render();
+      }catch(err){
+        console.error(err);
+        status("Data se nepodařilo načíst. Zkontroluj internet, zkusím to znovu za chvíli.");
+      }finally{
+        loading=null;
+        if(reloadAgain){ reloadAgain=false; loadAll(); }
+      }
+    })();
+    return loading;
+  }
+  let reloadT;
+  const scheduleReload = () => { clearTimeout(reloadT); reloadT=setTimeout(loadAll,350); };
+
+  async function admin(role, fn, args, okMsg){
+    const pin = S.pins[role];
+    if(!pin){ toast("Nejdřív odemkni PINem."); return null; }
+    const {data,error} = await sb.rpc(fn, {p_pin:pin, ...args});
+    if(error){ console.error(error); toast("Nepodařilo se uložit, zkus to znovu."); return null; }
+    if(data && data.ok===false){
+      if(data.error==="bad"){ lock(role); toast("PIN už neplatí, zadej ho znovu."); }
+      else if(data.error==="locked"){ toast("Moc špatných pokusů, zkus to za 10 minut."); }
+      else toast("Nepodařilo se uložit.");
+      return null;
+    }
+    if(okMsg) toast(okMsg);
+    await loadAll();
+    return data;
+  }
+  async function login(role, pin){
+    if(!pin){ return false; }
+    const {data,error} = await sb.rpc("login",{p_role:role,p_pin:pin});
+    if(error){ toast("Nepodařilo se ověřit PIN, zkus to znovu."); return false; }
+    if(data==="ok"){ S.pins[role]=pin; ls.set("jiskra.pin."+role,pin); return true; }
+    toast(data==="locked"?"Moc špatných pokusů, zkus to za 10 minut.":"Špatný PIN.");
+    return false;
+  }
+  function lock(role){ S.pins[role]=""; ls.set("jiskra.pin."+role,null); render(); }
+  async function changePin(role, input){
+    const v=input.value.trim();
+    if(!/^\d{4,8}$/.test(v)){ toast("PIN musí mít 4 až 8 číslic."); return; }
+    const {data,error} = await sb.rpc("change_pin",{p_role:role,p_old:S.pins[role],p_new:v});
+    if(error||!data||data.ok===false){ toast("PIN se nepodařilo změnit."); return; }
+    S.pins[role]=v; ls.set("jiskra.pin."+role,v); input.value=""; toast("PIN změněn.");
+  }
+
+  const sortedPlayers = team => [...S.players.values()].filter(p=>!team||p.team===team)
+    .sort((a,b)=>(a.team<b.team?-1:a.team>b.team?1:0)||POS_ORDER[a.pos]-POS_ORDER[b.pos]||a.name.localeCompare(b.name,"cs"));
+  const evSort = (a,b)=> a.date<b.date?-1:a.date>b.date?1:(a.time_a||"99").localeCompare(b.time_a||"99");
+
+  /* ---------- Program ---------- */
+  function playerRow(e,p){
+    const s=S.att.get(e.id+"__"+p.id)?.s;
+    return `<div class="pl">
+      <span class="num">${numTxt(p)}</span>
+      <span class="pname"><span class="pos-l">${POS[p.pos]||""}</span> – ${esc(p.name)}<span class="state">${s==="yes"?"přijde":s==="no"?"nepřijde":"zatím neodpověděl"}</span></span>
+      <span class="rs">
+        <button class="yes" data-act="rsvp" data-e="${esc(e.id)}" data-p="${esc(p.id)}" data-s="yes" aria-pressed="${s==="yes"}" aria-label="${esc(p.name)} budu">Budu</button>
+        <button class="no" data-act="rsvp" data-e="${esc(e.id)}" data-p="${esc(p.id)}" data-s="no" aria-pressed="${s==="no"}" aria-label="${esc(p.name)} nebudu">Nebudu</button>
+      </span>
+    </div>`;
+  }
+  function eventCard(e,feature,light){
+    const d=parse(e.date);
+    const eligible=sortedPlayers().filter(p=>forTeam(e,p.team));
+    let yes=0,no=0;
+    for(const p of eligible){ const s=S.att.get(e.id+"__"+p.id)?.s; if(s==="yes")yes++; else if(s==="no")no++; }
+    const wait=eligible.length-yes-no, n=eligible.length||1;
+    const isMatch=e.type==="zapas";
+    const title=isMatch?(e.opponent?"vs "+esc(e.opponent):"Soupeř bude doplněn"):"Trénink";
+    const teamTag=e.teams==="AB"?"A + B":e.teams+" tým";
+    let timeTxt;
+    if(e.teams==="AB" && e.time_b && e.time_b!==e.time_a) timeTxt=`A <b>${esc(e.time_a||"?")}</b> · B <b>${esc(e.time_b)}</b>`;
+    else timeTxt=e.time_a?`<b>${esc(e.time_a)}</b>`:"čas doplní trenér";
+    const open=S.open.has(e.id);
+    let roster="";
+    if(open){
+      if(e.teams==="AB"){
+        for(const t of ["A","B"]){ const ps=eligible.filter(p=>p.team===t); if(ps.length) roster+=`<h4>${t} tým${e.time_b&&e.time_b!==e.time_a?` · ${esc(t==="B"?e.time_b:(e.time_a||"?"))}`:""}</h4>`+ps.map(p=>playerRow(e,p)).join(""); }
+      } else roster=eligible.map(p=>playerRow(e,p)).join("");
+      if(!eligible.length) roster=`<p class="muted small">V týmu zatím nejsou hráči.</p>`;
+    }
+    return `<article class="ev${isMatch?" match":""}${feature?" feature":""}${light&&!isMatch?" light":""}">
+      <div class="ev-head">
+        <div class="date"><span class="dw">${DW[d.getDay()]}</span><span class="dd">${d.getDate()}</span><span class="dm">${MON[d.getMonth()]}</span></div>
+        <div class="ev-body">
+          ${isMatch?`<span class="ev-label">Zápas · ${teamTag}</span>`:feature?`<span class="ev-label">Nejbližší trénink</span>`:""}
+          <div class="ev-title">${title} ${isMatch?"":`<span class="tag">${teamTag}</span>`}</div>
+          <div class="ev-meta">${timeTxt}${e.place?" · "+esc(e.place):""}</div>
+        </div>
+      </div>
+      <div class="tally">
+        <span>✓ <b>${yes}</b></span><span class="muted">✕ ${no}</span><span class="muted">? ${wait}</span>
+        <span class="bar" aria-hidden="true"><i style="width:${yes/n*100}%;background:var(--ink)"></i><i style="width:${no/n*100}%;background:var(--mid)"></i></span>
+        <button class="open-btn" data-act="open" data-e="${esc(e.id)}" aria-expanded="${open}">${open?"Zavřít":"Potvrdit účast"}</button>
+      </div>
+      ${open?`<div class="roster">${roster}</div>`:""}
+    </article>`;
+  }
+  function renderProgram(){
+    document.querySelectorAll("#prog-filter .chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.f===S.filter));
+    const t=today(), all=[...S.events.values()].filter(e=>S.filter==="all"||forTeam(e,S.filter)).sort(evSort);
+    const up=all.filter(e=>e.date>=t), past=all.filter(e=>e.date<t).reverse();
+    let k=0;
+    $("upcoming").innerHTML = !S.loaded ? `<div class="empty">Načítám program…</div>`
+      : up.length ? up.map(e=>{ if(e.type==="zapas") return eventCard(e,false,false); const c=eventCard(e,k===0,k%2===0); k++; return c; }).join("")
+      : `<div class="empty">Zatím žádné naplánované akce. Trenér je přidá v záložce Trenér.</div>`;
+    const tp=$("toggle-past");
+    tp.hidden=!past.length; tp.textContent=S.showPast?"Skrýt proběhlé akce":`Zobrazit proběhlé akce (${past.length})`;
+    $("past").hidden=!S.showPast||!past.length;
+    $("past").innerHTML=S.showPast?past.map((e,i)=>eventCard(e,false,i%2===0)).join(""):"";
+  }
+  $("prog-filter").addEventListener("click",e=>{const b=e.target.closest(".chip"); if(!b)return; S.filter=b.dataset.f; ls.set("jiskra.filter",S.filter); renderProgram();});
+  $("toggle-past").addEventListener("click",()=>{S.showPast=!S.showPast; renderProgram();});
+
+  async function rsvp(eid,pid,s){
+    const key=eid+"__"+pid, prev=S.att.get(key);
+    if(prev?.s===s){
+      S.att.delete(key); renderProgram(); renderStats();
+      const {error}=await sb.from("attendance").delete().eq("event_id",eid).eq("player_id",pid);
+      if(error){ S.att.set(key,prev); renderProgram(); toast("Nepodařilo se uložit, zkus to znovu."); }
+    } else {
+      S.att.set(key,{s}); renderProgram(); renderStats();
+      const {error}=await sb.from("attendance").upsert({event_id:eid,player_id:pid,status:s,updated_at:new Date().toISOString()},{onConflict:"event_id,player_id"});
+      if(error){ if(prev) S.att.set(key,prev); else S.att.delete(key); renderProgram(); toast("Nepodařilo se uložit, zkus to znovu."); }
+    }
+  }
+
+  /* ---------- Docházka ---------- */
+  function statsFor(p){
+    const t=today(); let tr=0,ty=0,z=0,zy=0;
+    for(const e of S.events.values()){
+      if(e.date>=t||!forTeam(e,p.team)) continue;
+      const yes=S.att.get(e.id+"__"+p.id)?.s==="yes";
+      if(e.type==="zapas"){z++; if(yes)zy++;} else {tr++; if(yes)ty++;}
+    }
+    const n=tr+z; return {tr,ty,z,zy,pct:n?Math.round((ty+zy)/n*100):null};
+  }
+  function renderStats(){
+    document.querySelectorAll("#stats-filter .chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.t===S.statsTeam));
+    if(!S.loaded){ $("stats-body").innerHTML=`<tr><td colspan="4" class="muted">Načítám…</td></tr>`; return; }
+    const rows=sortedPlayers(S.statsTeam).map(p=>({p,s:statsFor(p)}));
+    if(!rows.length){ $("stats-body").innerHTML=`<tr><td colspan="4" class="muted">V týmu zatím nejsou hráči.</td></tr>`; return; }
+    $("stats-body").innerHTML=rows.map(({p,s})=>`<tr>
+        <td><span class="num">${numTxt(p)}</span></td>
+        <td><div class="pname">${esc(p.name)}</div><div class="pos">${POS[p.pos]||""}</div></td>
+        <td><div class="pct"><div class="track"><div class="fill" style="width:${s.pct??0}%"></div></div><strong>${s.pct==null?"–":s.pct+"%"}</strong></div></td>
+        <td class="split">T ${s.ty}/${s.tr} · Z ${s.zy}/${s.z}</td>
+      </tr>`).join("");
+  }
+  $("stats-filter").addEventListener("click",e=>{const b=e.target.closest(".chip"); if(!b)return; S.statsTeam=b.dataset.t; renderStats();});
+
+  /* ---------- Kasa ---------- */
+  function renderKasa(){
+    const unlocked=!!S.pins.kasa;
+    $("kasa-lock").hidden=unlocked; $("kasa-admin").hidden=!unlocked; $("ft-form").hidden=!unlocked;
+    document.querySelectorAll("#kasa-filter .chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.t===S.kasaTeam));
+    let paid=0,unpaid=0;
+    for(const f of S.fines){ if(f.paid) paid+=f.amount; else unpaid+=f.amount; }
+    $("k-paid").textContent=kc(paid); $("k-unpaid").textContent=kc(unpaid);
+
+    const byPlayer=new Map();
+    for(const f of S.fines){ if(!byPlayer.has(f.player_id)) byPlayer.set(f.player_id,[]); byPlayer.get(f.player_id).push(f); }
+    const players=sortedPlayers(S.kasaTeam);
+    $("kasa-players").innerHTML = !S.loaded ? `<p class="muted small" style="margin:0">Načítám…</p>`
+      : !players.length ? `<p class="muted small" style="margin:0">V týmu zatím nejsou hráči.</p>`
+      : players.map(p=>{
+        const list=(byPlayer.get(p.id)||[]).slice().sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0);
+        const debt=list.filter(f=>!f.paid).reduce((s,f)=>s+f.amount,0);
+        const open=S.kasaOpen===p.id;
+        let detail="";
+        if(open){
+          detail=`<div class="kdetail">`+
+            (list.length? list.map(f=>{
+              const d=parse(f.date), cf=S.confirm==="del-fine:"+f.id;
+              return `<div class="fine${f.paid?" paid":""}">
+                <span class="fl">${esc(f.label)} <span class="small muted">· ${d.getDate()}. ${d.getMonth()+1}.</span></span>
+                <span class="fa">${kc(f.amount)}</span>
+                ${unlocked
+                  ? `<button class="iconbtn${f.paid?"":" warn"}" data-act="paid" data-id="${esc(f.id)}" data-v="${f.paid?"0":"1"}">${f.paid?"Zaplaceno ✓":"Označit zaplaceno"}</button>
+                     ${cf?`<button class="iconbtn warn" data-act="yes-del-fine" data-id="${esc(f.id)}">Opravdu smazat</button><button class="iconbtn" data-act="cancel">Ne</button>`
+                         :`<button class="iconbtn" data-act="del-fine" data-id="${esc(f.id)}">Smazat</button>`}`
+                  : `<span class="pill ${f.paid?"ok":"unpaid"}">${f.paid?"zaplaceno":"nezaplaceno"}</span>`}
+              </div>`;}).join("")
+            : `<p class="muted small" style="margin:0">Žádné pokuty.</p>`);
+          if(unlocked){
+            detail+= S.fineTypes.length
+              ? `<div class="small muted">Přidat pokutu:</div><div class="quick">${S.fineTypes.map(t=>`<button type="button" data-act="add-fine" data-p="${esc(p.id)}" data-ft="${esc(t.id)}">${esc(t.name)} · ${kc(t.amount)}</button>`).join("")}</div>`
+              : `<p class="small muted" style="margin:0">Nejdřív přidej položky do ceníku níže, pak je tady půjde jedním klikem přidat.</p>`;
+          }
+          detail+=`</div>`;
+        }
+        return `<button type="button" class="kp" data-act="kasa-open" data-p="${esc(p.id)}" aria-expanded="${open}">
+            <span class="num">${numTxt(p)}</span>
+            <span class="pname">${esc(p.name)}</span>
+            <span class="debt${debt?"":" zero"}">${debt?kc(debt):"0 Kč"}</span>
+          </button>${detail}`;
+      }).join("");
+
+    $("cenik").innerHTML = S.fineTypes.length ? S.fineTypes.map(t=>{
+      const cf=S.confirm==="del-ft:"+t.id;
+      return `<div class="price"><span class="pn">${esc(t.name)}</span><span class="pa">${kc(t.amount)}</span>
+        ${unlocked?(cf?`<button class="iconbtn warn" data-act="yes-del-ft" data-id="${esc(t.id)}">Opravdu smazat</button><button class="iconbtn" data-act="cancel">Ne</button>`
+                      :`<button class="iconbtn" data-act="del-ft" data-id="${esc(t.id)}">Smazat</button>`):""}</div>`;
+    }).join("") : `<p class="muted small" style="margin:0">Ceník je zatím prázdný.${unlocked?"":" Doplní ho pokladník."}</p>`;
+  }
+  $("kasa-filter").addEventListener("click",e=>{const b=e.target.closest(".chip"); if(!b)return; S.kasaTeam=b.dataset.t; S.kasaOpen=null; renderKasa();});
+  $("kasa-pin-form").addEventListener("submit",async e=>{ e.preventDefault(); if(await login("kasa",$("kasa-pin").value.trim())){ $("kasa-pin").value=""; renderKasa(); toast("Kasa odemčena."); } });
+  $("kasa-lock-btn").addEventListener("click",()=>lock("kasa"));
+  $("kasa-newpin-form").addEventListener("submit",e=>{ e.preventDefault(); changePin("kasa",$("kasa-newpin")); });
+  $("ft-form").addEventListener("submit",async e=>{
+    e.preventDefault();
+    const name=$("ft-name").value.trim(), amount=parseInt($("ft-amount").value,10);
+    if(!name||isNaN(amount)) return;
+    const sort=S.fineTypes.reduce((m,t)=>Math.max(m,t.sort||0),0)+1;
+    if(await admin("kasa","kasa_save_fine_type",{p_id:null,p_data:{name,amount,sort}},"Přidáno do ceníku.")){ $("ft-name").value=""; $("ft-amount").value=""; }
+  });
+
+  /* ---------- Kliknutí v Programu a Kase ---------- */
+  document.addEventListener("click",async ev=>{
+    const b=ev.target.closest("[data-act]"); if(!b) return;
+    const act=b.dataset.act;
+    switch(act){
+      case "open": { const id=b.dataset.e; S.open.has(id)?S.open.delete(id):S.open.add(id); renderProgram(); return; }
+      case "rsvp": return rsvp(b.dataset.e,b.dataset.p,b.dataset.s);
+      case "kasa-open": S.kasaOpen=S.kasaOpen===b.dataset.p?null:b.dataset.p; S.confirm=null; renderKasa(); return;
+      case "add-fine": {
+        const t=S.fineTypes.find(x=>x.id===b.dataset.ft); if(!t) return;
+        b.disabled=true;
+        await admin("kasa","kasa_add_fine",{p_player_id:b.dataset.p,p_label:t.name,p_amount:t.amount},`Pokuta zapsána: ${t.name}.`);
+        return;
+      }
+      case "paid": await admin("kasa","kasa_set_paid",{p_id:b.dataset.id,p_paid:b.dataset.v==="1"},b.dataset.v==="1"?"Zaplaceno.":"Vráceno na nezaplaceno."); return;
+      case "del-fine": S.confirm="del-fine:"+b.dataset.id; renderKasa(); return;
+      case "yes-del-fine": S.confirm=null; await admin("kasa","kasa_delete_fine",{p_id:b.dataset.id},"Pokuta smazána."); return;
+      case "del-ft": S.confirm="del-ft:"+b.dataset.id; renderKasa(); return;
+      case "yes-del-ft": S.confirm=null; await admin("kasa","kasa_delete_fine_type",{p_id:b.dataset.id},"Smazáno z ceníku."); return;
+      case "del-pl": S.confirm="del-pl:"+b.dataset.id; renderCoach(); return;
+      case "yes-del-pl": S.confirm=null; await admin("trener","trener_delete_player",{p_id:b.dataset.id},"Hráč odebrán."); return;
+      case "cancel": S.confirm=null; render(); return;
+    }
+  });
+
+  /* ---------- Trenér ---------- */
+  const NF={type:null,team:"A",place:"Doma"};
+  function nextDow(dow){ const d=new Date(); d.setDate(d.getDate()+(dow-d.getDay()+7)%7); return ymd(d); }
+  function setSeg(id,v){ document.querySelectorAll("#"+id+" button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===v)); }
+  function openNew(type){
+    NF.type=type; $("new-form").hidden=false;
+    const m=type==="zapas";
+    $("new-title").textContent=m?"Nový zápas":"Nový trénink";
+    $("nf-team-wrap").hidden=!m; $("nf-opp-wrap").hidden=!m; $("nf-place-wrap").hidden=!m; $("nf-timeb-wrap").hidden=m;
+    $("nf-time-l").textContent=m?"Čas výkopu":"Čas (oba týmy)";
+    $("nf-time").value=""; $("nf-timeb").value=""; $("nf-opp").value="";
+    NF.team="A"; NF.place="Doma"; setSeg("nf-team","A"); setSeg("nf-place","Doma");
+    $("nf-date").value=m?nextDow(6):today();
+    document.querySelectorAll("[data-new]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.new===type));
+  }
+  function closeNew(){ NF.type=null; $("new-form").hidden=true; document.querySelectorAll("[data-new]").forEach(b=>b.setAttribute("aria-pressed","false")); }
+  document.querySelectorAll("[data-new]").forEach(b=>b.addEventListener("click",()=>NF.type===b.dataset.new?closeNew():openNew(b.dataset.new)));
+  $("nf-cancel").addEventListener("click",closeNew);
+  $("nf-team").addEventListener("click",e=>{const b=e.target.closest("button"); if(!b)return; NF.team=b.dataset.v; setSeg("nf-team",NF.team); $("nf-date").value=nextDow(NF.team==="A"?6:0);});
+  $("nf-place").addEventListener("click",e=>{const b=e.target.closest("button"); if(!b)return; NF.place=b.dataset.v; setSeg("nf-place",NF.place);});
+  $("new-form").addEventListener("submit",async e=>{
+    e.preventDefault(); if(!NF.type||!$("nf-date").value) return;
+    const m=NF.type==="zapas";
+    const data={type:NF.type,date:$("nf-date").value,time_a:$("nf-time").value,time_b:m?"":$("nf-timeb").value,
+      teams:m?NF.team:"AB",opponent:m?$("nf-opp").value.trim():"",place:m?NF.place:""};
+    if(await admin("trener","trener_save_event",{p_id:null,p_data:data},m?"Zápas přidán.":"Trénink přidán.")) closeNew();
+  });
+
+  let editing=null, delArm=false;
+  function editForm(e){
+    const m=e.type==="zapas";
+    return `<form class="edit" data-edit="${esc(e.id)}">
+      <div class="grid">
+        <label class="field"><span>Datum</span><input name="date" type="date" value="${esc(e.date)}" required></label>
+        <label class="field"><span>${m?"Čas výkopu":"Čas (A tým)"}</span><input name="time_a" type="time" value="${esc(e.time_a||"")}"></label>
+        ${m?`<label class="field"><span>Soupeř</span><input name="opponent" type="text" value="${esc(e.opponent||"")}"></label>
+             <label class="field"><span>Kde</span><select name="place"><option${e.place==="Doma"?" selected":""}>Doma</option><option${e.place==="Venku"?" selected":""}>Venku</option><option value=""${!e.place?" selected":""}>–</option></select></label>`
+           :`<label class="field"><span>Čas B týmu (jen když je jindy)</span><input name="time_b" type="time" value="${esc(e.time_b||"")}"></label>`}
+      </div>
+      <div class="row">
+        <button class="btn" type="submit">Uložit</button>
+        <button class="btn ghost" type="button" data-close>Zavřít</button>
+        <button class="iconbtn${delArm?" warn":""}" type="button" data-del style="margin-left:auto">${delArm?"Opravdu smazat?":"Smazat"}</button>
+      </div>
+    </form>`;
+  }
+  function renderCoach(){
+    const unlocked=!!S.pins.trener;
+    $("coach-lock").hidden=unlocked; $("coach-panel").hidden=!unlocked;
+    if(!unlocked) return;
+    const cont=$("coach-events");
+    const formEl=cont.querySelector("form.edit");
+    if(!(editing && formEl && formEl.dataset.edit===editing && !delArm && formEl.contains(document.activeElement))){
+      const t=today(), up=[...S.events.values()].filter(e=>e.date>=t).sort(evSort);
+      cont.innerHTML=up.length?up.map(e=>{
+        const d=parse(e.date), m=e.type==="zapas";
+        const lbl=m?`<span class="dot"></span>Zápas ${e.teams} týmu${e.opponent?" · "+esc(e.opponent):""}`:"Trénink A + B";
+        const tm=m?(e.time_a||""):(e.time_a?(e.time_b&&e.time_b!==e.time_a?`A ${e.time_a} · B ${e.time_b}`:e.time_a):"");
+        return `<button type="button" class="cev${m?" is-match":""}" data-ev="${esc(e.id)}">
+            <span class="cd"><small>${DW[d.getDay()]}</small>${d.getDate()}.${d.getMonth()+1}.</span>
+            <span class="ci"><b>${lbl}</b><span class="small muted">${tm?esc(tm):"čas chybí"}${m&&e.place?" · "+esc(e.place):""}</span></span>
+            <span class="go">${editing===e.id?"▲":"Upravit"}</span>
+          </button>${editing===e.id?editForm(e):""}`;
+      }).join(""):`<p class="muted small" style="margin:0">Nic naplánovaného. Přidej trénink nebo zápas tlačítkem nahoře.</p>`;
+    }
+    $("coach-players").innerHTML=sortedPlayers().map(p=>{
+      const cf=S.confirm==="del-pl:"+p.id;
+      return `<div class="citem">
+        <span class="num">${numTxt(p)}</span>
+        <div class="grow">${esc(p.name)} <span class="small muted">· ${POS[p.pos]||""} · ${p.team} tým</span></div>
+        ${cf?`<button class="iconbtn warn" data-act="yes-del-pl" data-id="${esc(p.id)}">Opravdu odebrat</button><button class="iconbtn" data-act="cancel">Ne</button>`
+            :`<button class="iconbtn" data-act="del-pl" data-id="${esc(p.id)}">Odebrat</button>`}
+      </div>`;}).join("");
+  }
+  $("coach-events").addEventListener("click",async e=>{
+    const row=e.target.closest("[data-ev]");
+    if(row){ editing=editing===row.dataset.ev?null:row.dataset.ev; delArm=false; renderCoach(); return; }
+    if(e.target.closest("[data-close]")){ editing=null; delArm=false; renderCoach(); return; }
+    if(e.target.closest("[data-del]")){
+      if(!delArm){ delArm=true; renderCoach(); return; }
+      const id=editing; editing=null; delArm=false;
+      await admin("trener","trener_delete_event",{p_id:id},"Akce smazána."); return;
+    }
+  });
+  $("coach-events").addEventListener("submit",async e=>{
+    const f=e.target.closest("form.edit"); if(!f) return; e.preventDefault();
+    const data={}; for(const [k,v] of new FormData(f).entries()) data[k]=String(v).trim();
+    if(!data.date) return;
+    const id=f.dataset.edit; editing=null; delArm=false;
+    await admin("trener","trener_save_event",{p_id:id,p_data:data},"Uloženo.");
+  });
+
+  $("pin-form").addEventListener("submit",async e=>{ e.preventDefault(); if(await login("trener",$("pin-input").value.trim())){ $("pin-input").value=""; renderCoach(); toast("Trenér odemčen."); } });
+  $("lock-btn").addEventListener("click",()=>{ closeNew(); editing=null; lock("trener"); });
+  $("newpin-form").addEventListener("submit",e=>{ e.preventDefault(); changePin("trener",$("newpin")); });
+
+  function mondayOf(d){ const x=new Date(d); x.setDate(x.getDate()-(x.getDay()+6)%7); return x; }
+  $("wk-mon").value=ymd(mondayOf(new Date()));
+  $("week-form").addEventListener("submit",async e=>{
+    e.preventDefault();
+    const mon=parse($("wk-mon").value); if(isNaN(mon)) return;
+    const todo=[];
+    for(const [off,time_a,time_b] of [[1,$("wk-tue").value,""],[2,$("wk-wed").value,""],[4,$("wk-fri").value,$("wk-frib").value]]){
+      const d=new Date(mon); d.setDate(d.getDate()+off); const ds=ymd(d);
+      if(![...S.events.values()].some(x=>x.date===ds&&x.type==="trenink")) todo.push({type:"trenink",date:ds,time_a,time_b,teams:"AB"});
+    }
+    if($("wk-matches").checked){
+      for(const [off,team] of [[5,"A"],[6,"B"]]){
+        const d=new Date(mon); d.setDate(d.getDate()+off); const ds=ymd(d);
+        if(![...S.events.values()].some(x=>x.date===ds&&x.type==="zapas"&&x.teams===team)) todo.push({type:"zapas",date:ds,teams:team});
+      }
+    }
+    if(!todo.length){ toast("Ten týden už je naplánovaný."); return; }
+    let added=0;
+    for(const data of todo){ if(!(await admin("trener","trener_save_event",{p_id:null,p_data:data}))) break; added++; }
+    if(added) toast(`Naplánováno akcí: ${added}.`);
+  });
+  $("pl-form").addEventListener("submit",async e=>{
+    e.preventDefault(); const name=$("pl-name").value.trim(); if(!name) return;
+    const data={name,num:$("pl-num").value,pos:$("pl-pos").value,team:$("pl-team").value};
+    if(await admin("trener","trener_save_player",{p_id:null,p_data:data},"Hráč přidán.")){ $("pl-name").value=""; $("pl-num").value=""; }
+  });
+
+  /* ---------- Záložky ---------- */
+  const TABS=["program","stats","kasa","coach"];
+  function showTab(tab){
+    document.querySelectorAll("nav.tabs [data-tab]").forEach(x=>x.setAttribute("aria-selected",x.dataset.tab===tab));
+    for(const t of TABS) $("tab-"+t).hidden=t!==tab;
+    ls.set("jiskra.tab",tab);
+  }
+  document.querySelector("nav.tabs").addEventListener("click",e=>{ const b=e.target.closest("[data-tab]"); if(b){ showTab(b.dataset.tab); window.scrollTo(0,0);} });
+
+  /* Při psaní do formuláře nepřekreslovat, ať se nic neztratí */
+  const typing = id => { const a=document.activeElement; return a && $(id).contains(a) && /INPUT|SELECT|TEXTAREA/.test(a.tagName); };
+  let pending=false;
+  function render(){
+    renderProgram(); renderStats();
+    if(typing("tab-kasa")||typing("tab-coach")){ pending=true; return; }
+    renderKasa(); renderCoach();
+  }
+  document.addEventListener("focusout",()=>setTimeout(()=>{ if(pending&&!typing("tab-kasa")&&!typing("tab-coach")){ pending=false; renderKasa(); renderCoach(); } },0));
+
+  /* ---------- Instalace na plochu ---------- */
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  let installEvt=null;
+  function showInstall(text,withBtn){
+    if(standalone || ls.get("jiskra.install.hide")) return;
+    $("install-text").textContent=text; $("install-btn").hidden=!withBtn; $("install").hidden=false;
+  }
+  window.addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); installEvt=e; showInstall("Přidej si Jiskru na plochu jako aplikaci.",true); });
+  $("install-btn").addEventListener("click",async()=>{ if(!installEvt) return; installEvt.prompt(); try{ await installEvt.userChoice; }catch{} installEvt=null; $("install").hidden=true; });
+  $("install-x").addEventListener("click",()=>{ $("install").hidden=true; ls.set("jiskra.install.hide","1"); });
+  if(/iphone|ipad|ipod/i.test(navigator.userAgent) && !standalone) showInstall("Na plochu: dole klikni na Sdílet ⬆︎ a pak „Přidat na plochu“.",false);
+  if("serviceWorker" in navigator) window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+
+  /* ---------- Start ---------- */
+  S.pins.trener=ls.get("jiskra.pin.trener")||"";
+  S.pins.kasa=ls.get("jiskra.pin.kasa")||"";
+  const f=ls.get("jiskra.filter"); if(f==="all"||f==="A"||f==="B") S.filter=f;
+  const savedTab=ls.get("jiskra.tab"); if(TABS.includes(savedTab)) showTab(savedTab);
+  render();
+  loadAll();
+  if(sb){
+    sb.channel("jiskra").on("postgres_changes",{event:"*",schema:"public"},scheduleReload).subscribe();
+    document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") loadAll(); });
+    setInterval(()=>{ if(document.visibilityState==="visible") loadAll(); },60000);
+  }
+})();
+</script>
+</body>
+</html>
